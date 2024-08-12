@@ -1,1 +1,4 @@
-.env
+*.env
+git add .
+git commit -m "Add .env"
+git push <your remote (heroku, origin, etc.)> master
