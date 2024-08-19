@@ -1,7 +1,7 @@
 import streamlit as st
 from huggingface_hub import InferenceClient
 import os
-from dotenv import load_dotenv,dotenv_values
+from dotenv import load_dotenv
 import pandas as pd
 import yfinance as yf
 from gtts import gTTS
@@ -12,7 +12,19 @@ import io
 load_dotenv()
 
 def generate_ai_response(prompt, client, context=""):
-    system_message = f"You are a helpful AI assistant. Provide concise responses. Context: {context}"
+    system_message = f"You are an AI Assistant specialized in personal finance, insurance, credit scoring, stocks, and related topics.Use the following additional information in your responses:. Context: {context}"
+    
+    if "stock" in prompt.lower() or "$" in prompt:
+        words = prompt.replace("$", "").split()
+        potential_tickers = [word.upper() for word in words if word.isalpha() and len(word) <= 5]
+        
+        stock_info = ""
+        for ticker in potential_tickers:
+            stock_info += get_stock_info(ticker) + "\n"
+        
+        if stock_info:
+            prompt += f"\n\nHere's the current stock information:\n{stock_info}"
+    
     messages = [
         {"role": "system", "content": system_message},
         {"role": "user", "content": prompt}
@@ -27,6 +39,16 @@ def generate_ai_response(prompt, client, context=""):
         response += message.choices[0].delta.content or ""
     
     return response
+
+def get_stock_info(ticker):
+    try:
+        stock = yf.Ticker(ticker)
+        info = stock.info
+        current_price = stock.history(period='1d')['Close'].iloc[-1]
+        company_name = info.get('longName', 'Unknown Company')
+        return f"{company_name} (${ticker}) current price: ${current_price:.2f}"
+    except Exception as e:
+        return f"Unable to fetch information for {ticker}. Error: {str(e)}"
 
 def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
