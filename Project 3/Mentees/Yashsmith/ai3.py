@@ -16,7 +16,7 @@ import random
 load_dotenv()
 
 # Set the API token as an environment variable
-os.environ["REPLICATE_API_TOKEN"] = "r8_90fjjALmLHP2Gfc9Tc5axQYtw9tngTI1u0Ge4"
+os.environ["REPLICATE_API_TOKEN"] = "r8_OLxXM97ua69KwBzR9AweeviKSfSpt6x4Znvp6"
 
 def load_fine_tuning_data():
     fine_tuning_file = 'tune_data.txt'
